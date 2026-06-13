@@ -16,6 +16,8 @@ export function Footer() {
           <nav className="flex flex-wrap justify-center gap-6 mt-8 text-sm tracking-widest uppercase text-texte dark:text-rose-pale/70">
             <a href="#hero" className="hover:text-or">Accueil</a>
             <span className="text-or/40">|</span>
+            <a href="#presentation" className="hover:text-or">À propos</a>
+            <span className="text-or/40">|</span>
             <a href="#prestations" className="hover:text-or">Prestations</a>
             <span className="text-or/40">|</span>
             <a href="#rdv" className="hover:text-or">Réservation</a>
