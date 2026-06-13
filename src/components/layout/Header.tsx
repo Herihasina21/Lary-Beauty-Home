@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 const nav = [
   { href: "#hero", id: "hero", label: "Accueil" },
+  { href: "#presentation", id: "presentation", label: "À propos" },
   { href: "#prestations", id: "prestations", label: "Prestations" },
   { href: "#rdv", id: "rdv", label: "Réservation" },
   { href: "#contact", id: "contact", label: "Contact" },
