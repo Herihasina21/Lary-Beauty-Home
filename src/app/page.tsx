@@ -1,13 +1,12 @@
-import { Button } from "@/components/lb/button";
-import { SectionTitle } from "@/components/lb/section-title";
+import { Footer } from "@/components/layout/Footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background p-8">
-      <SectionTitle title="Test" subtitle="Design system LB" />
-      <Button href="#test" className="mt-4">
-        Bouton test
-      </Button>
-    </main>
+    <div className="min-h-screen flex flex-col bg-background">
+      <main className="flex-1 p-8">
+        <p className="text-muted-foreground">Teste Footer est en bas</p>
+      </main>
+      <Footer />
+    </div>
   );
 }
