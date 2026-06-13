@@ -4,6 +4,21 @@ import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/lb/button";
 import { Badge } from "@/components/lb/badge";
 
+var PETALS = [
+  { delay: 2.1, duration: 10.5, left: "4.7%" },
+  { delay: 5.9, duration: 12.3, left: "11.2%" },
+  { delay: 8.5, duration: 11.8, left: "18.4%" },
+  { delay: 6.6, duration: 14.2, left: "25.1%" },
+  { delay: 2.0, duration: 13.9, left: "33.6%" },
+  { delay: 5.8, duration: 11.3, left: "43.2%" },
+  { delay: 7.3, duration: 9.4, left: "48.9%" },
+  { delay: 7.4, duration: 11.0, left: "58.3%" },
+  { delay: 7.7, duration: 12.8, left: "64.8%" },
+  { delay: 9.7, duration: 14.4, left: "74.2%" },
+  { delay: 3.0, duration: 8.8, left: "82.8%" },
+  { delay: 6.6, duration: 13.9, left: "89.0%" },
+];
+
 function Petal({ delay, duration, left }: { delay: number; duration: number; left: string }) {
   return (
     <svg
@@ -30,20 +45,14 @@ function CornerFlourish({ className }: { className: string }) {
 }
 
 export function HeroSection() {
-  const petals = Array.from({ length: 12 }).map((_, i) => ({
-    delay: Math.random() * 10,
-    duration: 8 + Math.random() * 8,
-    left: `${i * 8 + Math.random() * 5}%`,
-  }));
-
   return (
     <section
       id="hero"
       className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24"
     >
-      {petals.map((p, i) => (
-        <Petal key={i} {...p} />
-      ))}
+      {PETALS.map(function (p, i) {
+        return <Petal key={i} {...p} />;
+      })}
 
       <CornerFlourish className="absolute top-20 left-0 w-40 opacity-60 rotate-0" />
       <CornerFlourish className="absolute top-20 right-0 w-40 opacity-60 scale-x-[-1]" />
