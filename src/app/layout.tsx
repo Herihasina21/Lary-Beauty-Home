@@ -17,14 +17,21 @@ const body = DM_Sans({
 
 export const metadata: Metadata = {
   title: "Lary Beauty Home",
-  description: "Institut de beauté à domicile",
+  description: "Institut de beauté à domicile — Lary Beauty Home",
+  authors: [{ name: "Lary Beauty Home" }],
+  openGraph: {
+    title: "Lary Beauty Home",
+    description: "L'art de la beauté à domicile",
+    type: "website",
+  },
+  twitter: { card: "summary" },
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <body className={`${display.variable} ${body.variable} font-body antialiased`}>
         {children}
       </body>
