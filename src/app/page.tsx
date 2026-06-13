@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { SectionDivider } from "@/components/SectionDivider";
 import { ServicesSection } from "@/components/sections/ServicesSection";
+import { BookingSection } from "@/components/sections/BookingSection";
 
 export default function Home() {
   return (
@@ -15,6 +16,8 @@ export default function Home() {
       <AboutSection />
       <SectionDivider />
       <ServicesSection />
+      <SectionDivider />
+      <BookingSection />
       </main>
       <Footer />
     </div>
