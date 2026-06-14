@@ -17,6 +17,9 @@ var autreCategory = {
   icon: HelpCircle,
 };
 
+var categoryCardSelected =
+  "border-or bg-or/10 dark:bg-or/25 dark:border-or ring-2 ring-or/40 dark:ring-or/50 shadow-[var(--ombre-carte)]";
+
 function ServiceOptionCard({
   service,
   selected,
@@ -152,7 +155,7 @@ export function ContactForm() {
                       <Card
                         className={cn(
                           "h-full cursor-pointer text-center p-4 sm:p-6",
-                          selected && "border-or/50 ring-2 ring-or/30",
+                          selected && categoryCardSelected,
                         )}
                         hover
                       >
@@ -172,7 +175,7 @@ export function ContactForm() {
                   <Card
                     className={cn(
                       "h-full cursor-pointer text-center p-4 sm:p-6",
-                      values.categoryId === "autre" && "border-or/50 ring-2 ring-or/30",
+                      values.categoryId === "autre" && categoryCardSelected,
                     )}
                     hover
                   >
