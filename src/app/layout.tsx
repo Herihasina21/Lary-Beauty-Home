@@ -24,8 +24,28 @@ export const metadata: Metadata = {
     title: "Lary Beauty Home",
     description: "L'art de la beauté à domicile",
     type: "website",
+    images: [
+      {
+        url: "/og-image.jpeg",
+        width: 1200,
+        height: 630,
+        alt: "Lary Beauty Home — Institut de beauté à La Rivière Saint Louis",
+      },
+    ],
   },
-  twitter: { card: "summary" },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/og-image.jpeg"],
+  },
+  icons: {
+    icon: "/LB.ico",
+    shortcut: "/LB.ico",
+    apple: "/LB.ico",
+    other: {
+      rel: "icon",
+      url: "/LB.ico",
+    },
+  },
 };
 
 export default function RootLayout({
