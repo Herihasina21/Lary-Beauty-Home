@@ -30,7 +30,9 @@ export interface ContactInfo {
   address: string;
   instagram: string;
   facebook: string;
+  tiktok: string;
   instagramUrl: string;
   instagramDmUrl: string;
   facebookUrl: string;
+  tiktokUrl: string;
 }

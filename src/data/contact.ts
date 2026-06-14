@@ -6,9 +6,11 @@ export const contactInfo: ContactInfo = {
   address: "97421 La Rivière Saint Louis",
   instagram: "Lary Beauty Home",
   facebook: "Lary Beauty Home",
-  instagramUrl: "https://www.instagram.com/larissahfontaine/", 
+  tiktok: "Nails by lary",
+  instagramUrl: "https://www.instagram.com/larissahfontaine/",
   instagramDmUrl: "https://www.instagram.com/direct/t/18071920106326195/",
   facebookUrl: "https://www.facebook.com/profile.php?id=61571000845912",
+  tiktokUrl: "https://www.tiktok.com/@lary.beauty.home",
 };
 
 // Replace by your own Formspree ID
