@@ -1,4 +1,4 @@
-import type { Service, ServiceCategory } from "@/types";
+import type { Service, SerializedServiceCategory } from "@/types";
 
 export type ContactCategoryId = "" | "ongles" | "epilations" | "soins" | "autre";
 
@@ -18,7 +18,7 @@ export type ContactFormValues = {
 
 export type ContactFormErrors = Partial<Record<keyof ContactFormValues, string>>;
 
-export var contactFormInitialValues: ContactFormValues = {
+export const contactFormInitialValues: ContactFormValues = {
   step: 1,
   categoryId: "",
   serviceId: "",
@@ -30,11 +30,11 @@ export var contactFormInitialValues: ContactFormValues = {
   message: "",
 };
 
-export var contactFormSteps = [
+export const contactFormSteps = [
   { num: 1, label: "Prestation" },
   { num: 2, label: "Détail" },
-  { num: 3, label: "Coordonnées" },
-  { num: 4, label: "Confirmation" },
+  { num: 3, label: "Créneau" },
+  { num: 4, label: "Coordonnées" },
 ] as const;
 
 export function formatServicePrice(price: number | string, unit?: string) {
@@ -44,14 +44,14 @@ export function formatServicePrice(price: number | string, unit?: string) {
 }
 
 export function formatServiceOption(service: Service) {
-  var price = formatServicePrice(service.price, service.unit);
+  const price = formatServicePrice(service.price, service.unit);
   if (service.duration) return `${service.name} — ${price} (${service.duration})`;
   return `${service.name} — ${price}`;
 }
 
 export function getCategoryServices(
   categoryId: ContactCategoryId,
-  servicesData: ServiceCategory[],
+  servicesData: SerializedServiceCategory[],
 ) {
   if (!categoryId || categoryId === "autre") return [];
   return servicesData.find(function (c) {
@@ -65,11 +65,11 @@ export type ServiceGroup = {
 };
 
 export function groupServicesByCategory(services: Service[]): ServiceGroup[] {
-  var groups: ServiceGroup[] = [];
-  var indexByName = new Map<string, number>();
+  const groups: ServiceGroup[] = [];
+  const indexByName = new Map<string, number>();
 
   services.forEach(function (service) {
-    var idx = indexByName.get(service.category);
+    const idx = indexByName.get(service.category);
     if (idx === undefined) {
       indexByName.set(service.category, groups.length);
       groups.push({ name: service.category, services: [service] });
@@ -83,7 +83,7 @@ export function groupServicesByCategory(services: Service[]): ServiceGroup[] {
 
 export function getCategoryTitle(
   categoryId: ContactCategoryId,
-  servicesData: ServiceCategory[],
+  servicesData: SerializedServiceCategory[],
 ) {
   if (categoryId === "autre") return "Autre / à discuter";
   if (!categoryId) return "";
@@ -95,10 +95,10 @@ export function getCategoryTitle(
 export function resolveServiceLabel(
   categoryId: ContactCategoryId,
   serviceId: string,
-  servicesData: ServiceCategory[],
+  servicesData: SerializedServiceCategory[],
 ) {
   if (categoryId === "autre") return "Autre / à discuter";
-  var service = getCategoryServices(categoryId, servicesData).find(function (s) {
+  const service = getCategoryServices(categoryId, servicesData).find(function (s) {
     return s.id === serviceId;
   });
   if (!service) return "";
@@ -107,10 +107,10 @@ export function resolveServiceLabel(
 
 export function buildFormspreePayload(
   values: ContactFormValues,
-  servicesData: ServiceCategory[],
+  servicesData: SerializedServiceCategory[],
 ) {
-  var category = getCategoryTitle(values.categoryId, servicesData);
-  var prestation =
+  const category = getCategoryTitle(values.categoryId, servicesData);
+  const prestation =
     values.serviceLabel ||
     resolveServiceLabel(values.categoryId, values.serviceId, servicesData);
 
@@ -128,7 +128,7 @@ export function buildFormspreePayload(
 }
 
 function validateContactFields(v: ContactFormValues): ContactFormErrors {
-  var e: ContactFormErrors = {};
+  const e: ContactFormErrors = {};
   if (!v.name.trim()) e.name = "Veuillez indiquer votre nom";
   else if (v.name.trim().length < 2) e.name = "Nom trop court";
 
@@ -142,13 +142,10 @@ function validateContactFields(v: ContactFormValues): ContactFormErrors {
 }
 
 function validateDateAndMessage(v: ContactFormValues): ContactFormErrors {
-  var e: ContactFormErrors = {};
+  const e: ContactFormErrors = {};
 
-  if (v.date) {
-    var today = new Date();
-    today.setHours(0, 0, 0, 0);
-    var d = new Date(v.date);
-    if (d < today) e.date = "Date passée";
+  if (!v.date) {
+    e.date = "Choisissez un créneau disponible";
   }
 
   if (v.categoryId === "autre" && !v.message.trim()) {
@@ -163,7 +160,7 @@ export function validateContactStep(
   step: ContactFormStep,
   v: ContactFormValues,
 ): ContactFormErrors {
-  var e: ContactFormErrors = {};
+  const e: ContactFormErrors = {};
 
   if (step === 1 && !v.categoryId) {
     e.categoryId = "Choisissez une catégorie";
@@ -174,19 +171,19 @@ export function validateContactStep(
   }
 
   if (step === 3) {
-    Object.assign(e, validateContactFields(v));
+    Object.assign(e, validateDateAndMessage(v));
   }
 
   if (step === 4) {
-    Object.assign(e, validateDateAndMessage(v));
+    Object.assign(e, validateContactFields(v));
   }
 
   return e;
 }
 
 export function validateContactForm(v: ContactFormValues): ContactFormErrors {
-  var e: ContactFormErrors = {};
-  for (var step = 1 as ContactFormStep; step <= 4; step++) {
+  const e: ContactFormErrors = {};
+  for (let step = 1 as ContactFormStep; step <= 4; step++) {
     Object.assign(e, validateContactStep(step, v));
   }
   return e;

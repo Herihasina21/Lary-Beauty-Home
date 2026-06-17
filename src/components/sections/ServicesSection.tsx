@@ -3,20 +3,38 @@
 import { useMemo, useState } from "react";
 import { Clock } from "lucide-react";
 import { SectionTitle } from "@/components/lb/section-title";
-import { servicesData, soinsNotes } from "@/data/services";
+import { servicesData as fallbackServices, soinsNotes as fallbackNotes } from "@/data/services";
+import { resolveIcon, iconNameFromComponent } from "@/lib/icons";
 import { cn } from "@/lib/utils";
+import type { Service, SerializedServiceCategory } from "@/types";
+
+const fallbackCategories: SerializedServiceCategory[] = fallbackServices.map(function (cat) {
+  return {
+    id: cat.id,
+    title: cat.title,
+    icon: iconNameFromComponent(cat.icon),
+    services: cat.services,
+  };
+});
 
 function formatPrice(price: number | string, unit?: string) {
   const value = typeof price === "number" ? `${price}€` : `${price}€`;
   return unit ? `${value}${unit}` : value;
 }
 
-export function ServicesSection() {
-  const [activeId, setActiveId] = useState(servicesData[0].id);
-  const active = servicesData.find((c) => c.id === activeId)!;
+export function ServicesSection({
+  categories = fallbackCategories,
+  soinsNotes = fallbackNotes,
+}: {
+  categories?: SerializedServiceCategory[];
+  soinsNotes?: string[];
+}) {
+  const [activeId, setActiveId] = useState(categories[0]?.id ?? "ongles");
+  const active = categories.find((c) => c.id === activeId) ?? categories[0];
 
   const groups = useMemo(() => {
-    const map = new Map<string, typeof active.services>();
+    if (!active) return [] as [string, Service[]][];
+    const map = new Map<string, Service[]>();
     active.services.forEach((s) => {
       const arr = map.get(s.category) ?? [];
       arr.push(s);
@@ -24,6 +42,8 @@ export function ServicesSection() {
     });
     return Array.from(map.entries());
   }, [active]);
+
+  if (!active) return null;
 
   return (
     <section id="prestations" className="relative py-24 px-6">
@@ -36,8 +56,8 @@ export function ServicesSection() {
 
         {/* Mobile: icon pills */}
         <div className="md:hidden mb-8 flex justify-center gap-3 flex-wrap">
-          {servicesData.map((cat) => {
-            const Icon = cat.icon;
+          {categories.map((cat) => {
+            const Icon = resolveIcon(cat.icon);
             const isActive = activeId === cat.id;
             return (
               <button
@@ -48,7 +68,7 @@ export function ServicesSection() {
                 className={cn(
                   "flex flex-col items-center gap-1.5 rounded-2xl px-4 py-3 border transition-all min-w-[96px]",
                   isActive
-                    ? "bg-gradient-to-br from-or-clair/40 to-or/30 border-or text-anthracite dark:text-rose-pale shadow-[var(--ombre-carte)]"
+                    ? "bg-gradient-to-br from-or-clair/40 to-or/30 border-or text-anthracite dark:text-rose-pale shadow-[const(--ombre-carte)]"
                     : "bg-white/60 dark:bg-[#2a1a1d]/70 border-or/15 dark:border-or/25 text-texte/70 dark:text-rose-pale/70 hover:border-or/50",
                 )}
               >
@@ -63,8 +83,8 @@ export function ServicesSection() {
 
         {/* Desktop tabs */}
         <div className="hidden md:flex flex-wrap justify-center gap-8 border-b border-or/20 mb-12">
-          {servicesData.map((cat) => {
-            const Icon = cat.icon;
+          {categories.map((cat) => {
+            const Icon = resolveIcon(cat.icon);
             const isActive = activeId === cat.id;
             return (
               <button
@@ -97,7 +117,7 @@ export function ServicesSection() {
                 {items.map((s) => (
                   <div
                     key={s.id}
-                    className="group bg-white/60 dark:bg-[#2a1a1d]/70 backdrop-blur-sm rounded-2xl p-5 border border-or/10 dark:border-or/25 border-l-2 transition-all duration-300 hover:-translate-y-1 hover:border-l-or hover:shadow-[var(--ombre-hover)]"
+                    className="group bg-white/60 dark:bg-[#2a1a1d]/70 backdrop-blur-sm rounded-2xl p-5 border border-or/10 dark:border-or/25 border-l-2 transition-all duration-300 hover:-translate-y-1 hover:border-l-or hover:shadow-[const(--ombre-hover)]"
                   >
                     <div className="flex items-baseline justify-between gap-4">
                       <div className="flex-1">

@@ -25,7 +25,7 @@ export function Loader() {
       }`}
       style={{
         background:
-          "linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%)",
+          "linear-gradient(180deg, const(--bg-primary) 0%, const(--bg-secondary) 100%)",
       }}
     >
       <div className="flex flex-col items-center gap-6">

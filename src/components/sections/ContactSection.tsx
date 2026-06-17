@@ -3,31 +3,39 @@ import type { LucideIcon } from "lucide-react";
 import { SectionTitle } from "@/components/lb/section-title";
 import { ContactForm } from "@/components/sections/ContactForm";
 import { FacebookIcon, InstagramIcon, TikTokIcon } from "@/components/icons/brand-icons";
-import { contactInfo } from "@/data/contact";
+import type { ContactInfo, SerializedServiceCategory } from "@/types";
 
 type BrandIcon = typeof InstagramIcon;
 
-var items: { icon: LucideIcon; label: string; href: string }[] = [
-  {
-    icon: Phone,
-    label: contactInfo.phone,
-    href: `tel:${contactInfo.phone.replace(/\s/g, "")}`,
-  },
-  { icon: Mail, label: contactInfo.email, href: `mailto:${contactInfo.email}` },
-  {
-    icon: MapPin,
-    label: contactInfo.address,
-    href: `https://maps.google.com/?q=${encodeURIComponent(contactInfo.address)}`,
-  },
-];
+export function ContactSection({
+  contactInfo,
+  servicesData,
+  formspreeFormId,
+}: {
+  contactInfo: ContactInfo;
+  servicesData: SerializedServiceCategory[];
+  formspreeFormId: string;
+}) {
+  const items: { icon: LucideIcon; label: string; href: string }[] = [
+    {
+      icon: Phone,
+      label: contactInfo.phone,
+      href: `tel:${contactInfo.phone.replace(/\s/g, "")}`,
+    },
+    { icon: Mail, label: contactInfo.email, href: `mailto:${contactInfo.email}` },
+    {
+      icon: MapPin,
+      label: contactInfo.address,
+      href: `https://maps.google.com/?q=${encodeURIComponent(contactInfo.address)}`,
+    },
+  ];
 
-var socials: { icon: BrandIcon; label: string; sub: string; href: string }[] = [
-  { icon: InstagramIcon, label: contactInfo.instagram, sub: "Instagram", href: contactInfo.instagramUrl },
-  { icon: TikTokIcon, label: contactInfo.tiktok, sub: "TikTok", href: contactInfo.tiktokUrl },
-  { icon: FacebookIcon, label: contactInfo.facebook, sub: "Facebook", href: contactInfo.facebookUrl },
-];
+  const socials: { icon: BrandIcon; label: string; sub: string; href: string }[] = [
+    { icon: InstagramIcon, label: contactInfo.instagram, sub: "Instagram", href: contactInfo.instagramUrl },
+    { icon: TikTokIcon, label: contactInfo.tiktok, sub: "TikTok", href: contactInfo.tiktokUrl },
+    { icon: FacebookIcon, label: contactInfo.facebook, sub: "Facebook", href: contactInfo.facebookUrl },
+  ];
 
-export function ContactSection() {
   return (
     <section id="contact" className="relative py-24 px-6">
       <div className="max-w-4xl mx-auto">
@@ -57,7 +65,7 @@ export function ContactSection() {
               rel="noopener noreferrer"
               className="group flex flex-col items-center gap-2"
             >
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-or-clair to-or text-white shadow-[var(--ombre-carte)] group-hover:shadow-[var(--ombre-hover)] group-hover:-translate-y-1 transition-all">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-or-clair to-or text-white shadow-[const(--ombre-carte)] group-hover:shadow-[const(--ombre-hover)] group-hover:-translate-y-1 transition-all">
                 <s.icon className="w-7 h-7" />
               </span>
               <span className="font-display text-sm text-anthracite dark:text-rose-pale">{s.label}</span>
@@ -66,7 +74,7 @@ export function ContactSection() {
           ))}
         </div>
 
-        <ContactForm />
+        <ContactForm servicesData={servicesData} formspreeFormId={formspreeFormId} contactInfo={contactInfo} />
       </div>
     </section>
   );

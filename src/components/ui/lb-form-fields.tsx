@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { AlertCircle, Calendar, ChevronDown } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-var baseInput =
+const baseInput =
   "w-full rounded-xl border bg-white/50 dark:bg-white/5 px-4 py-3 focus:outline-none focus:ring-2 dark:text-rose-pale transition-all duration-200";
 
 function inputCls(hasError?: boolean) {
@@ -116,7 +116,7 @@ export function DateField({
   onBlur: () => void;
   error?: string;
 }) {
-  var today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
   return (
     <div>
       <label htmlFor={name} className="font-display italic text-rose-sombre text-sm mb-1 block">

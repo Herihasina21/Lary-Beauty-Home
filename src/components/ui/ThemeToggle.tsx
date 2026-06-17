@@ -5,14 +5,14 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 export function ThemeToggle() {
-  var [mounted, setMounted] = useState(false);
-  var { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
 
   useEffect(function () {
     setMounted(true);
   }, []);
 
-  var buttonClass =
+  const buttonClass =
     "inline-flex h-10 w-10 items-center justify-center rounded-full bg-or/20 text-or hover:bg-or/30 hover:scale-105 transition-all duration-300 border border-or/30";
 
   if (!mounted) {
@@ -28,7 +28,7 @@ export function ThemeToggle() {
     );
   }
 
-  var isDark = resolvedTheme === "dark";
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button

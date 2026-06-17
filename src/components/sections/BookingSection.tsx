@@ -1,9 +1,18 @@
 import { Button } from "@/components/lb/button";
 import { SectionTitle } from "@/components/lb/section-title";
-import { bookingHighlights, bookingQuote, bookingRules } from "@/data/booking";
-import { contactInfo } from "@/data/contact";
+import type { BookingRule, ContactInfo } from "@/types";
 
-export function BookingSection() {
+export function BookingSection({
+  bookingRules,
+  bookingHighlights,
+  bookingQuote,
+  contactInfo,
+}: {
+  bookingRules: BookingRule[];
+  bookingHighlights: string[];
+  bookingQuote: string;
+  contactInfo: ContactInfo;
+}) {
   return (
     <section id="rdv" className="relative py-24 px-6">
       <div className="max-w-6xl mx-auto">
@@ -33,7 +42,7 @@ export function BookingSection() {
             ))}
           </ul>
 
-          <aside className="lg:col-span-2 bg-white/70 dark:bg-[#2a1a1d]/80 backdrop-blur-md rounded-3xl p-8 border border-or/30 shadow-[var(--ombre-carte)] h-fit lg:sticky lg:top-28">
+          <aside className="lg:col-span-2 bg-white/70 dark:bg-[#2a1a1d]/80 backdrop-blur-md rounded-3xl p-8 border border-or/30 shadow-[const(--ombre-carte)] h-fit lg:sticky lg:top-28">
             <h3 className="font-display italic text-3xl text-or text-center">Mes prestations</h3>
             <div className="ornament-line text-or my-4"><span>✦</span></div>
             <ul className="space-y-3 mb-6">

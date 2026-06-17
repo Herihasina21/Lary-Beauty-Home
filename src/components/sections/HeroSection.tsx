@@ -3,8 +3,9 @@
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/lb/button";
 import { Badge } from "@/components/lb/badge";
+import type { HeroContent } from "@/types";
 
-var PETALS = [
+const PETALS = [
   { delay: 2.1, duration: 10.5, left: "4.7%" },
   { delay: 5.9, duration: 12.3, left: "11.2%" },
   { delay: 8.5, duration: 11.8, left: "18.4%" },
@@ -44,7 +45,7 @@ function CornerFlourish({ className }: { className: string }) {
   );
 }
 
-export function HeroSection() {
+export function HeroSection({ hero }: { hero: HeroContent }) {
   return (
     <section
       id="hero"
@@ -84,26 +85,26 @@ export function HeroSection() {
         </svg>
 
         <p className="text-xs tracking-[0.5em] uppercase text-rose-moyen mb-4">
-          Institut de Beauté
+          {hero.eyebrow}
         </p>
 
         <h1 className="font-display text-5xl md:text-7xl font-light text-anthracite dark:text-rose-pale tracking-wide">
-          LARY BEAUTY HOME
+          {hero.title}
         </h1>
 
         <p className="font-display italic text-2xl md:text-3xl text-or mt-4">
-          L'art de la beauté à domicile
+          {hero.subtitle}
         </p>
 
-        <div className="mt-8 flex justify-center">
-          <Badge>
-            -10% sur votre premier rendez-vous
-          </Badge>
-        </div>
+        {hero.promoBadge ? (
+          <div className="mt-8 flex justify-center">
+            <Badge>{hero.promoBadge}</Badge>
+          </div>
+        ) : null}
 
         <div className="mt-10">
-          <Button href="#rdv" size="lg">
-            Prendre Rendez-vous →
+          <Button href={hero.ctaHref} size="lg">
+            {hero.ctaLabel}
           </Button>
         </div>
       </div>

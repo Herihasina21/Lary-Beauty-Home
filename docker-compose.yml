@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: lary-beauty-db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: lary
+      POSTGRES_PASSWORD: lary
+      POSTGRES_DB: lary_beauty
+    volumes:
+      - lary_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lary -d lary_beauty"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  lary_pg_data:
