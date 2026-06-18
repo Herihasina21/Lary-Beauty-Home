@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import type { SubmitEvent } from "react";
-import { useForm } from "@formspree/react";
-import { servicesData } from "@/data/services";
+import { submitContactFormAction } from "@/app/contact/actions";
+import { servicesData as fallbackServices } from "@/data/services";
+import { iconNameFromComponent } from "@/lib/icons";
 import {
-  buildFormspreePayload,
   contactFormInitialValues,
   getCategoryServices,
   resolveServiceLabel,
@@ -16,27 +16,56 @@ import {
   type ContactFormStep,
   type ContactFormValues,
 } from "@/lib/contact-form";
+import type { ContactInfo, SerializedServiceCategory } from "@/types";
 
-export function useContactForm() {
-  var formspreeId = process.env.NEXT_PUBLIC_FORMSPREE_FORM_ID ?? "";
-  var [state, handleFormspreeSubmit] = useForm(formspreeId);
-  var [values, setValues] = useState<ContactFormValues>(contactFormInitialValues);
-  var [errors, setErrors] = useState<ContactFormErrors>({});
-  var [touched, setTouched] = useState<Partial<Record<keyof ContactFormValues, boolean>>>({});
+type FormState = {
+  submitting: boolean;
+  succeeded: boolean;
+  trackingToken: string | null;
+  errors: { form?: string } | null;
+};
 
-  var setField = <K extends keyof ContactFormValues>(k: K, v: ContactFormValues[K]) => {
-    var next = { ...values, [k]: v };
+const fallbackCategories: SerializedServiceCategory[] = fallbackServices.map(function (cat) {
+  return {
+    id: cat.id,
+    title: cat.title,
+    icon: iconNameFromComponent(cat.icon),
+    services: cat.services,
+  };
+});
+
+export function useContactForm({
+  servicesData = fallbackCategories,
+  formspreeFormId = "",
+}: {
+  servicesData?: SerializedServiceCategory[];
+  formspreeFormId?: string;
+}) {
+  const [state, setState] = useState<FormState>({
+    submitting: false,
+    succeeded: false,
+    trackingToken: null,
+    errors: null,
+  });
+  const [values, setValues] = useState<ContactFormValues>(contactFormInitialValues);
+  const [errors, setErrors] = useState<ContactFormErrors>({});
+  const [touched, setTouched] = useState<Partial<Record<keyof ContactFormValues, boolean>>>({});
+
+  const setField = <K extends keyof ContactFormValues>(k: K, v: ContactFormValues[K]) => {
+    const next = { ...values, [k]: v };
     setValues(next);
-    if (touched[k]) setErrors(validateContactStep(next.step, next));
+    if (touched[k] || k === "date") {
+      setErrors(validateContactStep(next.step, next));
+    }
   };
 
-  var blur = (k: keyof ContactFormValues) => {
+  const blur = (k: keyof ContactFormValues) => {
     setTouched({ ...touched, [k]: true });
     setErrors(validateContactStep(values.step, values));
   };
 
-  var setCategory = (categoryId: ContactCategoryId) => {
-    var next: ContactFormValues = {
+  const setCategory = (categoryId: ContactCategoryId) => {
+    const next: ContactFormValues = {
       ...values,
       categoryId: categoryId,
       serviceId: "",
@@ -47,31 +76,31 @@ export function useContactForm() {
     setTouched({ ...touched, categoryId: true });
   };
 
-  var selectService = (serviceId: string) => {
-    var label = resolveServiceLabel(values.categoryId, serviceId, servicesData);
-    var next = { ...values, serviceId: serviceId, serviceLabel: label };
+  const selectService = (serviceId: string) => {
+    const label = resolveServiceLabel(values.categoryId, serviceId, servicesData);
+    const next = { ...values, serviceId: serviceId, serviceLabel: label };
     setValues(next);
     setErrors(validateContactStep(next.step, next));
     setTouched({ ...touched, serviceId: true });
   };
 
-  var goToStep = (step: ContactFormStep) => {
+  const goToStep = (step: ContactFormStep) => {
     setValues({ ...values, step: step });
     setErrors({});
   };
 
-  var nextStep = () => {
-    var stepErrors = validateContactStep(values.step, values);
-    var stepKeys: (keyof ContactFormValues)[] =
+  const nextStep = () => {
+    const stepErrors = validateContactStep(values.step, values);
+    const stepKeys: (keyof ContactFormValues)[] =
       values.step === 1
         ? ["categoryId"]
         : values.step === 2
           ? ["serviceId"]
           : values.step === 3
-            ? ["name", "phone", "email"]
-            : ["date", "message"];
+            ? ["date", "message"]
+            : ["name", "phone", "email"];
 
-    var nextTouched = { ...touched };
+    const nextTouched = { ...touched };
     stepKeys.forEach(function (k) {
       nextTouched[k] = true;
     });
@@ -80,7 +109,7 @@ export function useContactForm() {
 
     if (Object.keys(stepErrors).length > 0) return;
 
-    var nextStepNum = values.step + 1;
+    let nextStepNum = values.step + 1;
     if (values.step === 1 && values.categoryId === "autre") {
       nextStepNum = 3;
     }
@@ -89,8 +118,8 @@ export function useContactForm() {
     }
   };
 
-  var prevStep = () => {
-    var prevStepNum = values.step - 1;
+  const prevStep = () => {
+    let prevStepNum = values.step - 1;
     if (values.step === 3 && values.categoryId === "autre") {
       prevStepNum = 1;
     }
@@ -99,9 +128,9 @@ export function useContactForm() {
     }
   };
 
-  var onSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    var eMap = validateContactForm(values);
+    const eMap = validateContactForm(values);
     setErrors(eMap);
     setTouched({
       step: true,
@@ -115,13 +144,30 @@ export function useContactForm() {
       message: true,
     });
     if (Object.keys(eMap).length > 0) return;
-    handleFormspreeSubmit(buildFormspreePayload(values, servicesData));
+
+    setState({ submitting: true, succeeded: false, trackingToken: null, errors: null });
+    const result = await submitContactFormAction(values, servicesData, formspreeFormId);
+    if (result.success) {
+      setState({
+        submitting: false,
+        succeeded: true,
+        trackingToken: result.trackingToken ?? null,
+        errors: null,
+      });
+      return;
+    }
+    setState({
+      submitting: false,
+      succeeded: false,
+      trackingToken: null,
+      errors: { form: result.error ?? "Une erreur est survenue." },
+    });
   };
 
-  var fieldError = (key: keyof ContactFormValues) =>
+  const fieldError = (key: keyof ContactFormValues) =>
     touched[key] ? errors[key] : undefined;
 
-  var categoryServices = getCategoryServices(values.categoryId, servicesData);
+  const categoryServices = getCategoryServices(values.categoryId, servicesData);
 
   return {
     state,

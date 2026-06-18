@@ -8,6 +8,7 @@ import { ServicesSection } from "@/components/sections/ServicesSection";
 import { BookingSection } from "@/components/sections/BookingSection";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { Loader } from "@/components/ui/Loader";
+import { getPublicSiteData } from "@/lib/site-data";
 
 export const metadata: Metadata = {
   title: "Lary Beauty Home — Institut de Beauté à La Rivière Saint Louis",
@@ -20,21 +21,30 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  const site = await getPublicSiteData();
+
   return (
     <div className="relative min-h-screen overflow-x-hidden">
       <Loader />
       <Header />
       <main>
-      <HeroSection />
-      <SectionDivider />
-      <AboutSection />
-      <SectionDivider />
-      <ServicesSection />
-      <SectionDivider />
-      <BookingSection />
-      <SectionDivider />
-      <ContactSection />
+        <HeroSection hero={site.hero} />
+        <SectionDivider />
+        <AboutSection about={site.about} features={site.aboutFeatures} />
+        <SectionDivider />
+        <ServicesSection categories={site.categories} soinsNotes={site.soinsNotes} />
+        <SectionDivider />
+        <BookingSection
+          bookingRules={site.bookingRules}
+          bookingHighlights={site.bookingHighlights}
+          bookingQuote={site.bookingQuote}
+          contactInfo={site.contactInfo}
+          servicesData={site.categories}
+          formspreeFormId={site.formspreeFormId}
+        />
+        <SectionDivider />
+        <ContactSection contactInfo={site.contactInfo} />
       </main>
       <Footer />
     </div>

@@ -1,24 +1,38 @@
 "use client";
 
 import { HelpCircle, Loader2, CheckCircle, AlertCircle, Check } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/lb/button";
 import { Card } from "@/components/lb/card";
-import { contactInfo } from "@/data/contact";
+import { formatSlotLabelFromIso } from "@/lib/availability";
 import { contactFormSteps, formatServicePrice, getCategoryTitle, groupServicesByCategory, type ContactCategoryId, } from "@/lib/contact-form";
-import type { Service } from "@/types";
+import type { ContactInfo, Service, SerializedServiceCategory } from "@/types";
+import { resolveIcon } from "@/lib/icons";
 import { useContactForm } from "@/hooks/useContactForm";
-import { DateField, Field, TextAreaField, } from "@/components/ui/lb-form-fields";
+import { Field, TextAreaField, } from "@/components/ui/lb-form-fields";
+import { SlotPicker } from "@/components/booking/SlotPicker";
 import { InstagramIcon } from "@/components/icons/brand-icons";
 import { cn } from "@/lib/utils";
+import { servicesData as fallbackServicesData } from "@/data/services";
+import { iconNameFromComponent } from "@/lib/icons";
 
-var autreCategory = {
+const fallbackCategories: SerializedServiceCategory[] = fallbackServicesData.map(function (cat) {
+  return {
+    id: cat.id,
+    title: cat.title,
+    icon: iconNameFromComponent(cat.icon),
+    services: cat.services,
+  };
+});
+
+const autreCategory = {
   id: "autre" as ContactCategoryId,
   title: "Autre",
   icon: HelpCircle,
 };
 
-var categoryCardSelected =
-  "border-or bg-or/10 dark:bg-or/25 dark:border-or ring-2 ring-or/40 dark:ring-or/50 shadow-[var(--ombre-carte)]";
+const categoryCardSelected =
+  "border-or bg-or/10 dark:bg-or/25 dark:border-or ring-2 ring-or/40 dark:ring-or/50 shadow-[const(--ombre-carte)]";
 
 function ServiceOptionCard({
   service,
@@ -29,7 +43,7 @@ function ServiceOptionCard({
   selected: boolean;
   onSelect: () => void;
 }) {
-  var price = formatServicePrice(service.price, service.unit);
+  const price = formatServicePrice(service.price, service.unit);
 
   return (
     <button
@@ -75,8 +89,16 @@ function ServiceOptionCard({
   );
 }
 
-export function ContactForm() {
-  var {
+export function ContactForm({
+  servicesData = fallbackCategories,
+  formspreeFormId = "",
+  contactInfo,
+}: {
+  servicesData?: SerializedServiceCategory[];
+  formspreeFormId?: string;
+  contactInfo: ContactInfo;
+}) {
+  const {
     state,
     values,
     errors,
@@ -89,29 +111,38 @@ export function ContactForm() {
     onSubmit,
     fieldError,
     categoryServices,
-    servicesData,
-  } = useContactForm();
+  } = useContactForm({ servicesData, formspreeFormId });
 
   return (
-    <div className="bg-white/70 dark:bg-[#2a1a1d]/80 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-or/20 dark:border-or/30 p-4 sm:p-6 md:p-10 shadow-[var(--ombre-carte)]">
-      <h3 className="font-display text-2xl sm:text-3xl text-anthracite dark:text-rose-pale text-center">
-        Envoyez-moi un message
-      </h3>
-      <div className="ornament-line text-or my-4"><span>✦</span></div>
-
+    <div className="bg-white/70 dark:bg-[#2a1a1d]/80 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-or/20 dark:border-or/30 p-4 sm:p-6 md:p-10 shadow-[const(--ombre-carte)]">
       {state.succeeded ? (
-        <div className="flex items-start gap-3 rounded-2xl border border-or/30 bg-or/10 p-5 text-anthracite dark:text-rose-pale">
-          <CheckCircle className="w-6 h-6 text-or shrink-0 mt-0.5" />
-          <p className="font-display italic text-lg">
-            Votre demande a bien été envoyée ! Je vous répondrai très bientôt ♥
-          </p>
+        <div className="space-y-4">
+          <div className="flex items-start gap-3 rounded-2xl border border-or/30 bg-or/10 p-5 text-anthracite dark:text-rose-pale">
+            <CheckCircle className="w-6 h-6 text-or shrink-0 mt-0.5" />
+            <div>
+              <p className="font-display italic text-lg">
+                Votre demande a bien été envoyée ! Je vous répondrai très bientôt ♥
+              </p>
+              <p className="mt-2 text-sm text-texte/80 dark:text-rose-pale/70">
+                Un récapitulatif vous est envoyé par email. Vous pouvez aussi suivre votre rendez-vous via le lien ci-dessous.
+              </p>
+            </div>
+          </div>
+          {state.trackingToken && (
+            <Link
+              href={`/rdv/suivi/${state.trackingToken}`}
+              className="flex items-center justify-center rounded-2xl border border-or bg-white px-5 py-4 text-center text-sm font-medium text-or transition-colors hover:bg-or/5 dark:bg-[#2a1a1d]"
+            >
+              Voir le suivi de mon rendez-vous →
+            </Link>
+          )}
         </div>
       ) : (
         <form onSubmit={onSubmit} noValidate className="space-y-6 mt-6">
           <nav aria-label="Étapes du formulaire" className="flex justify-center gap-1.5 sm:gap-2 md:gap-4">
             {contactFormSteps.map(function (s) {
-              var isActive = values.step === s.num;
-              var isDone = values.step > s.num;
+              const isActive = values.step === s.num;
+              const isDone = values.step > s.num;
               return (
                 <div
                   key={s.num}
@@ -143,8 +174,8 @@ export function ContactForm() {
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 {servicesData.map(function (cat) {
-                  var Icon = cat.icon;
-                  var selected = values.categoryId === cat.id;
+                  const Icon = resolveIcon(cat.icon);
+                  const selected = values.categoryId === cat.id;
                   return (
                     <button
                       key={cat.id}
@@ -228,8 +259,47 @@ export function ContactForm() {
 
           {values.step === 3 && (
             <div className="space-y-5">
+              <div className="rounded-2xl border border-or/20 bg-or/5 p-4 text-sm text-texte dark:text-rose-pale/80">
+                <p>
+                  <span className="font-display text-or">Prestation : </span>
+                  {values.serviceLabel || getCategoryTitle(values.categoryId, servicesData)}
+                </p>
+              </div>
               <p className="text-center font-display italic text-rose-sombre">
-                Vos coordonnées
+                Quand souhaitez-vous venir ?
+              </p>
+              <SlotPicker
+                value={values.date}
+                onChange={(v) => setField("date", v)}
+                error={fieldError("date")}
+              />
+              <TextAreaField
+                label={values.categoryId === "autre" ? "Votre demande" : "Message / précisions (optionnel)"}
+                name="message"
+                value={values.message}
+                onChange={(v) => setField("message", v)}
+                onBlur={() => blur("message")}
+                error={fieldError("message")}
+              />
+            </div>
+          )}
+
+          {values.step === 4 && (
+            <div className="space-y-5">
+              <div className="rounded-2xl border border-or/20 bg-or/5 p-4 text-sm text-texte dark:text-rose-pale/80 space-y-2">
+                <p>
+                  <span className="font-display text-or">Prestation : </span>
+                  {values.serviceLabel || getCategoryTitle(values.categoryId, servicesData)}
+                </p>
+                {values.date && (
+                  <p>
+                    <span className="font-display text-or">Créneau : </span>
+                    {formatSlotLabelFromIso(values.date)}
+                  </p>
+                )}
+              </div>
+              <p className="text-center font-display italic text-rose-sombre">
+                Vos coordonnées pour confirmer la réservation
               </p>
               <div className="grid md:grid-cols-2 gap-5">
                 <Field
@@ -266,37 +336,10 @@ export function ContactForm() {
             </div>
           )}
 
-          {values.step === 4 && (
-            <div className="space-y-5">
-              <div className="rounded-2xl border border-or/20 bg-or/5 p-4 text-sm text-texte dark:text-rose-pale/80">
-                <p>
-                  <span className="font-display text-or">Prestation : </span>
-                  {values.serviceLabel || getCategoryTitle(values.categoryId, servicesData)}
-                </p>
-              </div>
-              <DateField
-                label="Date souhaitée (sous réserve de confirmation)"
-                name="date"
-                value={values.date}
-                onChange={(v) => setField("date", v)}
-                onBlur={() => blur("date")}
-                error={fieldError("date")}
-              />
-              <TextAreaField
-                label={values.categoryId === "autre" ? "Votre demande" : "Message / précisions"}
-                name="message"
-                value={values.message}
-                onChange={(v) => setField("message", v)}
-                onBlur={() => blur("message")}
-                error={fieldError("message")}
-              />
-            </div>
-          )}
-
-          {state.errors && Object.keys(state.errors).length > 0 && (
+          {state.errors?.form && (
             <div className="flex items-start gap-3 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-red-600 dark:text-red-400">
               <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-              <p className="text-sm">Une erreur est survenue. Veuillez réessayer.</p>
+              <p className="text-sm">{state.errors.form}</p>
             </div>
           )}
 
@@ -321,7 +364,7 @@ export function ContactForm() {
                     Envoi en cours...
                   </>
                 ) : (
-                  <>Envoyer ma demande ♥</>
+                  <>Réserver mon créneau ♥</>
                 )}
               </Button>
             )}
