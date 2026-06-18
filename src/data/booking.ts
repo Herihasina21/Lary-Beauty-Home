@@ -4,7 +4,7 @@ import {
 import type { BookingRule } from "@/types";
   
 export const bookingRules: BookingRule[] = [
-    { id: "b1", icon: MessageCircle, text: "Les réservations se font uniquement en message privé." },
+    { id: "b1", icon: MessageCircle, text: "Réservez en ligne ci-contre, ou par message privé sur Instagram." },
     {
       id: "b2",
       icon: Mail,

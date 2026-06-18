@@ -48,18 +48,18 @@ export function Header() {
   const [active, setActive] = useState("hero");
 
   useEffect(() => {
-    var sectionIds = nav.map(function (n) {
+    const sectionIds = nav.map(function (n) {
       return n.id;
     });
 
     function updateActiveSection() {
       setScrolled(window.scrollY > 30);
 
-      var probe = window.scrollY + window.innerHeight * 0.35;
-      var current = sectionIds[0];
+      const probe = window.scrollY + window.innerHeight * 0.35;
+      let current = sectionIds[0];
 
       sectionIds.forEach(function (id) {
-        var el = document.getElementById(id);
+        const el = document.getElementById(id);
         if (el && el.offsetTop <= probe) current = id;
       });
 
